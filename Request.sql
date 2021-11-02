@@ -73,7 +73,6 @@ INSERT INTO Client (Name) VALUES ('Правиков');
 INSERT INTO Client (Name) VALUES ('Кошубаров');
 INSERT INTO Client (Name) VALUES ('Альшин');
 
-
 -- Таблица: Address
 CREATE TABLE Address (ID NUMBER GENERATED ALWAYS AS IDENTITY CONSTRAINT address_pk PRIMARY KEY, Client_id NUMBER, A_type NUMBER, City VARCHAR2 (100), Street VARCHAR2 (100), House VARCHAR2 (100), Flat VARCHAR2 (100), Created DATE, Active VARCHAR2 (1), CONSTRAINT FK_Client FOREIGN KEY (Client_id) REFERENCES Client(ID));
 INSERT INTO address (client_id, a_type, city, street, house, flat, created, active) VALUES (1, 1, 'Саратов', 'Рабочая', '15', '', TO_DATE('2020.11.21', 'YYYY/MM/DD'), 'Y');
@@ -88,7 +87,6 @@ INSERT INTO address (client_id, a_type, city, street, house, flat, created, acti
 INSERT INTO address (client_id, a_type, city, street, house, flat, created, active) VALUES (3, 2, '', 'Соколовая', '44', '1', TO_DATE('2019.11.16', 'YYYY/MM/DD'), 'Y');
 INSERT INTO address (client_id, a_type, city, street, house, flat, created, active) VALUES (3, 3, 'Саратов', 'Аткарская', '31', '85', TO_DATE('2019.01.26', 'YYYY/MM/DD'), 'N');
 INSERT INTO address (client_id, a_type, city, street, house, flat, created, active) VALUES (1, 1, '', 'Университетская', '33', '13', TO_DATE('2020.11.21', 'YYYY/MM/DD'), 'Y');
-
 
 -- Таблица: Contact
 CREATE TABLE Contact (ID NUMBER GENERATED ALWAYS AS IDENTITY CONSTRAINT contact_pk PRIMARY KEY, Client_id NUMBER, C_type NUMBER, C_info VARCHAR2 (100), Created DATE, Active VARCHAR2 (1), CONSTRAINT FK_Client_for_contact FOREIGN KEY (Client_id) REFERENCES Client(ID));
