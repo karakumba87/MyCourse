@@ -48,18 +48,18 @@ FROM client
                             , MAX(created) OVER(PARTITION BY client_id) AS max_created
                             FROM    contact
                             WHERE contact.active != 'N' AND c_type = 1
-                            ) like_phone ON client.id = like_phone.client_id
+                            ) like_phone ON client.id = like_phone.client_id 
+                                        AND (like_phone.created = like_phone.max_created OR like_phone.created IS NULL) 
             LEFT JOIN   (
                             SELECT client_id, c_info, created
                             , MAX(created) OVER(PARTITION BY client_id) AS max_created
                             FROM  contact
                             WHERE contact.active != 'N' AND c_type = 2
-                            ) like_mail ON client.id = like_mail.client_id
-            LEFT JOIN   cte2 ON client.id = cte2.client_id
-WHERE (like_phone.created = like_phone.max_created OR like_phone.created IS NULL) 
-        AND (like_mail.created = like_mail.max_created OR like_mail.created IS NULL) 
-        AND (address_fullness_rank = max_address_fullness_rank OR cte2.created IS NULL)
-        AND (cte2.created = max_created_in_address OR cte2.created IS NULL)
+                            ) like_mail ON client.id = like_mail.client_id 
+                                        AND (like_mail.created = like_mail.max_created OR like_mail.created IS NULL) 
+            LEFT JOIN   cte2 ON client.id = cte2.client_id 
+                            AND (address_fullness_rank = max_address_fullness_rank)
+                            AND (cte2.created = max_created_in_address OR cte2.created IS NULL)
 ;
 
 
