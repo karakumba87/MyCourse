@@ -2,133 +2,164 @@ import random
 from random import choice
 from string import ascii_uppercase
 import pandas as pd
+from datetime import datetime, timedelta
 
 
-count_col = ''
-count_row = ''
+count_row = 10
 col_param = []
+data_word = {}
+param_word = {}
 
 
-def main():
-    # Если программа используется как модуль,
-    # лучше указать имя файла как аргумент к main
-    name_file_setting = 'settings.txt'
+# Принимает на вход тип вывода
+def application(type_out='excel_out'):
+    name_file_setting = './settings.txt'
+    getParam(name_file_setting)
 
-    a = getSetting(name_file_setting)
-    print('Settings: ')
-    print('count_col', ': ', count_col)
-    print('count_row', ': ', count_row)
-    print()
-    print('Settings columns:')
-    for row in a:
-        print(row)
+    if type_out == 'sql_out':
+        print(data_word)
+        # generateSqlInConsole()
+    elif type_out == 'excel_out':
+        generateExcel()
 
-    print()
-    print('Print result:')
-    b = dataGenerated(a)
-    for row in b:
-        print(row)
 
-    i = 0
-    word = {}
+# Пока не работает
+def generateSqlInConsole():
+    print('Не работает!')
+    # str1 = 'INSERT ALL\n'
+    # str2 = 'INTO Views ('View_id, Session_id, Film_id, Adv_partner_id, Count_adv, Count_click_adv) VALUES ('
+    # names_column = data_word.keys()
+    #
+    # i = 0
+    # while i < count_row / 2:
+    #     print('INTO Views (View_id, Session_id, Film_id, Adv_partner_id, Count_adv, Count_click_adv)'
+    #           , ' VALUES ('
+    #           , data_word.get('View_id')[i]
+    #           , ', '
+    #           , data_word.get('Session_id')[i]
+    #           , ', '
+    #           , data_word.get('Film_id')[i]
+    #           , ', '
+    #           , data_word.get('Adv_partner_id')[i]
+    #           , ', '
+    #           , data_word.get('Count_adv')[i]
+    #           , ', '
+    #           , data_word.get('Count_click_adv')[i]
+    #           , ')'
+    #           , sep='')
+    #     i += 1
 
-    while i < int(count_col):
-        word.update({i: b[i]})
-        i += 1
 
-    df = pd.DataFrame(word)
+def generateExcel():
+    df = pd.DataFrame(data_word)
     df.to_excel('./temp.xlsx')
 
 
-def getSetting(name):
-    global count_col
+def getParam(name_file):
+    global param_word
+    data_json_cfg = pd.read_json(name_file)
+    param_word = data_json_cfg.to_dict()
+
     global count_row
-    global col_param
 
-    # Сделать проверку на отсутствие файла
-    file = open(name, 'r')
-    setting = (file.read().replace('\n', '')).replace('\t', '')
-    file.close()
-    flag1 = False
-    flag_comment = False
-    parameter_num = 1
-    type_col = ''
-    length = ''
-    constraint = ''
-    temp_array_types = []
-    temp_array_lengths = []
-    temp_array_constraints = []
+    names_col = list(param_word.keys())
+    for i in names_col:
+        if i == "Count_row":
+            count_row = list(dict(param_word[i]).values())[0]
 
-    for s in setting:
-        if flag1 is True and s != ';' and s != ' ' and s != '<' and flag_comment is not True:
-            if parameter_num == 1:
-                count_col += s
-            elif parameter_num == 2:
-                count_row += s
-            elif parameter_num == 3:
-                type_col += s
-            elif parameter_num == 4:
-                length += s
-            elif parameter_num == 5:
-                constraint += s
-        elif s == ';' and flag_comment is not True:
-            flag1 = False
-            if type_col != '':
-                temp_array_types.append(verifyType(type_col))
-            if length != '':
-                temp_array_lengths.append(int(length))
-            if constraint != '':
-                temp_array_constraints.append(False)
-            type_col = ''
-            length = ''
-            constraint = ''
-            parameter_num += 1
-            if parameter_num == 6:
-                parameter_num = 3
-        elif s == ' ' and flag_comment is not True:
-            flag1 = True
-        elif s == '<':
-            flag_comment = True
-            flag1 = False
-        elif s == '>':
-            flag_comment = False
-
-    type_col_array = [[0, 0, False] for x in range(int(count_col))]
     i = 0
-
-    while i < int(count_col):
-        type_col_array[i][0] = temp_array_types[i]
-        type_col_array[i][1] = temp_array_lengths[i]
-        type_col_array[i][2] = temp_array_constraints[i]
+    while i < len(param_word):
+        if names_col[i] != "Count_row":
+            params_col = list(param_word.get(names_col[i]))
+            dataGenerated(dict(param_word.get(names_col[i])).get(params_col[0]),
+                          names_col[i],
+                          dict(param_word.get(names_col[i])).get(params_col[1]),
+                          dict(param_word.get(names_col[i])).get(params_col[2]))
         i += 1
 
-    return type_col_array
+
+def dataGenerated(type_column, name_column, range_min, range_max):
+    global data_word
+    if type_column == 'group_date':
+        date_start, date_end = groupDateGenerate(datetime.strptime(range_min, '%d/%m/%Y'))
+        data_word.update({name_column + '_from': date_start})
+        data_word.update({name_column + '_to': date_end})
+    elif type_column == 'date':
+        date_start = dateGenerate(datetime.strptime(range_min, '%d/%m/%Y'))
+        data_word.update({name_column: date_start})
+    elif type_column == 'number':
+        number_data = numberGenerate(int(range_min), int(range_max))
+        data_word.update({name_column: number_data})
+    elif type_column == 'varchar':
+        number_data = stringGenerate(int(range_min))
+        data_word.update({name_column: number_data})
+    elif type_column == 'id':
+        number_data = idGenerate()
+        data_word.update({name_column: number_data})
 
 
-def verifyType(s):
-    if s == 'num':
-        return 0
-    elif s == 'varchar':
-        return ''
+def idGenerate():
+    data_array = [0 for i in range(int(count_row))]
 
-
-def dataGenerated(type_col_array):
-    data_array = [[0 for j in range(int(count_row))] for i in range(int(count_col))]
     i = 0
-    j = 0
-
-    while i < int(count_col):
-        while j < int(count_row):
-            if isinstance(type_col_array[i][0], int):
-                data_array[i][j] = random.randint(0, type_col_array[i][1])
-            if isinstance(type_col_array[i][0], str):
-                data_array[i][j] = ''.join(choice(ascii_uppercase) for x in range(type_col_array[i][1]))
-            j += 1
-        j = 0
+    while i < int(count_row):
+        data_array[i] = i+1
         i += 1
 
     return data_array
 
 
+def numberGenerate(min, max):
+    data_array = [0 for i in range(int(count_row))]
+    i = 0
+
+    while i < int(count_row):
+        data_array[i] = random.randint(min, max)
+        i += 1
+
+    return data_array
+
+
+def stringGenerate(min):
+    data_array = [0 for i in range(int(count_row))]
+    i = 0
+
+    while i < int(count_row):
+        data_array[i] = ''.join(choice(ascii_uppercase) for x in range(min))
+        i += 1
+
+    return data_array
+
+
+def groupDateGenerate(range_min):
+    date_list = [range_min + timedelta(days=x + random.random()) for x in range(0, count_row*2)]
+    date_array_start = [0 for i in range(int(count_row))]
+    date_array_end = [0 for i in range(int(count_row))]
+
+    i = x = y = 0
+    while i < len(date_list):
+        if i % 2 == 0:
+            date_array_start[x] = date_list[i].strftime("%m/%d/%Y, %H:%M:%S")
+            x += 1
+        else:
+            date_array_end[y] = date_list[i].strftime("%m/%d/%Y, %H:%M:%S")
+            y += 1
+        i += 1
+
+    return date_array_start, date_array_end
+
+
+def dateGenerate(range_min):
+    date_list = [range_min + timedelta(days=x + random.random()) for x in range(0, count_row)]
+    date_array = [0 for i in range(int(count_row))]
+
+    i = 0
+    while i < len(date_list):
+        date_array[i] = date_list[i].strftime("%m/%d/%Y, %H:%M:%S")
+        i += 1
+
+    return date_array
+
+
 if __name__ == "__main__":
-    main()
+    application()

@@ -1,68 +1,32 @@
-<--- Example comment. --->
-<------------------------------------------
-Parameter name can be anything.
-Design ": x;".
-All parameters and their order are required.
------------------------------------------->
-
-<--- Count columns. --->
-CountCol: 10;
-<--- Count rows. --->
-CountRow: 2000;
-
-<--- Column #1. --->
-<--- Data type. --->
-<---
-Valid types:
-num and varchar
---->
-TypeCol: num;
-<--- Length --->
-Length: 7;
-<--- Constraints. NULLABLE or NOT NULLABLE. --->
-Constraint: 0;
-
-<--- Column #2. --->
-TypeCol: varchar;
-Length: 8;
-Constraint: 1;
-
-<--- Column #3. --->
-TypeCol: varchar;
-Length: 4;
-Constraint: 1;
-
-<--- Column #4. --->
-TypeCol: varchar;
-Length: 15;
-Constraint: 1;
-
-<--- Column #5. --->
-TypeCol: varchar;
-Length: 3;
-Constraint: 1;
-
-<--- Column #6. --->
-TypeCol: varchar;
-Length: 6;
-Constraint: 1;
-
-<--- Column #7. --->
-TypeCol: varchar;
-Length: 2;
-Constraint: 1;
-
-<--- Column #8. --->
-TypeCol: varchar;
-Length: 3;
-Constraint: 1;
-
-<--- Column #9. --->
-TypeCol: varchar;
-Length: 6;
-Constraint: 1;
-
-<--- Column #10. --->
-TypeCol: varchar;
-Length: 4;
-Constraint: 1;
+{
+	"Count_row": 2000,
+	"User_id": {
+		"Type_column": "id",
+		"Min": 1
+	},
+	"Name_user": {
+		"Type_column": "varchar",
+		"Min": 4,
+		"Constraint": {"Nullable": "True", "Unique": "False"}
+	},
+	"Email": {
+		"Type_column": "varchar",
+		"Min": 6,
+		"Constraint": {"Nullable": "True", "Unique": "False"}
+	},
+	"Country_id": {
+		"Type_column": "varchar",
+		"Min": 7,
+		"Constraint": {"Nullable": "True", "Unique": "False"}
+	},
+	"Date_registration": {
+		"Type_column": "date",
+		"Min": "01/01/2021",
+		"Constraint": {"Nullable": "True", "Unique": "False"}
+	},
+	"Session": {
+		"Type_column": "group_date",
+		"Min": "01/01/2021",
+		"Constraint": {"Nullable": "True", "Unique": "False"}
+	},
+}
