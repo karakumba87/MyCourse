@@ -11,10 +11,14 @@ data_word = {}
 param_word = {}
 
 
-# Принимает на вход тип вывода
-def application(out_type='excel_out'):
+# Принимает на вход тип вывода и откуда получать настройки
+def application(out_type='excel_out', settings_type='oracle_db'):
     settings_file_name = './settings.txt'
-    takesSettingsFromFile(settings_file_name)
+
+    if settings_type == 'text_file':
+        takesSettingsFromFile(settings_file_name)
+    elif settings_type == 'oracle_db':
+        print('Не работает!')
 
     if out_type == 'sql_out':
         print(data_word)
@@ -79,7 +83,8 @@ def GeneratesData(type_column, name_column, range_min, range_max):
         number_data = idGenerates()
         data_word.update({name_column: number_data})
 
-
+# TO DO: Переместить функцию в numberGenerates() и
+# изменить файл с настройками - убрать тип id
 def idGenerates():
     data_array = [0 for i in range(int(count_row))]
 
