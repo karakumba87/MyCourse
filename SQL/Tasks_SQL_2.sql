@@ -1,0 +1,67 @@
+----------------
+-- Задание №1
+----------------
+SELECT NAME
+	 , COUNT(ID_ORDER)
+  FROM CUSTOMER
+  JOIN ORDER 
+	ON CUSTOMER.ID_CUSTOMER = ORDER.ID_CUSTOMER
+ GROUP BY NAME
+;
+
+----------------
+-- Задание №2
+----------------
+SELECT CUSTOMER.NAME
+	 , LISTAGG(GOODS.NAME, ', ') WITHIN GROUP (ORDER BY GOODS.NAME) AS GOODS_NAME
+  FROM CUSTOMER 
+  JOIN ORDER 
+	ON CUSTOMER.ID_CUSTOMER = ORDER.ID_CUSTOMER
+  JOIN GOODS 
+	ON ORDER.Id_GOODS = GOODS.ID_GOODS
+;
+
+----------------
+-- Задание №3
+----------------
+SELECT NAME				
+  FROM GOODS
+ GROUP BY NAME
+HAVING PRICE <= AVG(PRICE)
+;
+
+----------------
+-- Задание №4
+----------------
+SELECT TO_CHAR(TO_DATE(RANG_MONTH, 'MM'), 'MONTH') AS "Месяц"
+	 , DEP.NAME AS "Отдел"
+	 , COUNT_PEOPLE AS "Количество родившихся"
+  FROM    (
+           SELECT DEP_ID_FK AS DEP_ID
+				, COUNT(id) AS COUNT_PEOPLE
+                , EXTRACT(MONTH FROM BIRTHDATE) AS RANG_MONTH
+             FROM  EMP
+            GROUP BY DEP_ID_FK
+				   , EXTRACT(MONTH FROM BIRTHDATE)
+        ) TEMP_TABLE 
+  JOIN DEP 
+	ON TEMP_TABLE.DEP_ID = DEP.ID
+ ORDER BY RANG_MONTH
+;
+
+----------------
+-- Задание №5
+----------------
+SELECT TO_CHAR(BIRTHDATE, 'YYYY') AS "Год", TO_CHAR(BIRTHDATE, 'Month') AS "Месяц"
+     , NAME, COUNT(EMP.ID) AS "Количество родившихся"
+     , COUNT(EMP.ID) - LAG(COUNT(EMP.ID)) OVER(PARTITION BY NAME, TO_CHAR(BIRTHDATE, 'Month') ORDER BY TO_CHAR(BIRTHDATE, 'YYYY')) AS "Дельта"
+  FROM EMP 
+  JOIN DEP 
+	ON EMP.DEP_ID_FK = DEP.ID
+ GROUP BY DEP_ID_FK, TO_CHAR(BIRTHDATE, 'YYYY')
+		, TO_CHAR(BIRTHDATE, 'Month')
+		, EXTRACT(MONTH FROM BIRTHDATE)
+		, NAME
+ ORDER BY "Год"
+		, EXTRACT(MONTH FROM BIRTHDATE)
+;
